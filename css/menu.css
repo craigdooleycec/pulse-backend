@@ -1,0 +1,76 @@
+/* Header Styling */
+.header {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center; /* Ensures the gears icon is centered */
+    padding: 10px;
+    height: 100px !important;
+    background-color: transparent;
+}
+
+/* Menu Icon */
+.menu-icon-container {
+    position: absolute;
+    top: 20px;
+    left: 50px;
+}
+
+.menu-icon {
+    font-size: 24px;
+    color: #0e0e0e;
+    cursor: pointer;
+    transition: color 0.3s ease;
+}
+
+.menu-icon:hover {
+    color: #cccccc;
+}
+
+/* Menu Content */
+.menu-content {
+    display: none;
+    position: absolute;
+    top: 50px;
+    left: 20px;
+    background-color: #f9f9f9;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    padding: 25px;
+    z-index: 1000;
+    animation: fadeOut 0.3s ease forwards;
+}
+
+.menu-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.menu-content li {
+    margin: 30px 0;
+    text-align: center;
+}
+
+.menu-link {
+    font-size: 24px;
+    color: #0e0e0e !important;
+    text-decoration: none;
+    display: inline-block;
+    transition: color 0.3s ease;
+}
+
+.menu-link:hover {
+    color: #cccccc !important;
+}
+
+.menu-link:visited {
+    color: #0e0e0e;
+}
+
+/* Gears Icon */
+.icon-container {
+    position: relative;
+    text-align: center;
+    margin: auto;
+}

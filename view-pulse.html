@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Pulse</title>
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+
+  <!-- Favicons -->
+  <link rel="icon" type="assets/image/png" href="favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="assets/image/svg+xml" href="favicon.svg">
+  <link rel="shortcut icon" href="assets/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="assets/site.webmanifest">
+
+  <!-- FontAwesome -->
+  <script src="https://kit.fontawesome.com/4320f229e5.js" crossorigin="anonymous"></script>
+
+  <style>
+    .icon-container::after {
+      content: none;
+    }
+    .icon-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .icon-container i {
+      font-size: 40px;
+      color: #0e0e0e !important;
+    }
+    #pulse-options li {
+      font-family: 'Poppins', sans-serif;
+      font-size: 18px;
+      margin-bottom: 15px;
+      padding: 15px;
+      border: 2px solid #cccccc;
+      border-radius: 8px;
+      transition: background-color 0.3s ease;
+      min-width: 300px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    #pulse-options li:hover {
+      background-color: #f2f2f2;
+    }
+    #pulse-options li.selected {
+      background-color: #d4edda;
+      border-color: #c3e6cb;
+    }
+    #pulse-options {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    #submit-button {
+      font-size: 24px;
+      color: #cccccc;
+      background: none;
+      border: none;
+      cursor: default;
+      margin-top: 20px;
+      padding: 10px 20px;
+      border-radius: 8px;
+      transition: color 0.3s ease;
+      position: relative;
+    }
+    #submit-button:hover {
+      color: #4CAF50;
+    }
+    #submit-button[data-tooltip]:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ffffff;
+      color: #0e0e0e;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 15px;
+      border: 2px solid #cccccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      z-index: 10;
+      white-space: nowrap;
+    }
+    #error-message {
+      font-family: 'Poppins', sans-serif;
+      font-size: 18px;
+      color: #ff6961;
+      text-align: center;
+      margin-top: 15px;
+      visibility: hidden;
+      height: 24px;
+    }
+    #error-message.visible {
+      visibility: visible;
+    }
+  </style>
+</head>
+
+<body>
+  <main class="main-content">
+    <div class="icon-container">
+      <i id="header-icon" class="fa-solid fa-heart-pulse"></i>
+    </div>
+
+    <section id="pulse-container">
+      <h1 id="pulse-question" style="font-family: 'Poppins', sans-serif; font-size: 24px; text-align: center; margin-bottom: 20px; color: #0e0e0e;"></h1>
+
+      <ul id="pulse-options">
+        <!-- Options will be dynamically generated -->
+      </ul>
+
+      <button id="submit-button" data-tooltip="Submit">
+        <i class="fa-regular fa-circle-right fa-2xl"></i>
+      </button>
+      <div id="error-message">You haven't selected a response</div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <p><i class="fa-solid fa-heart-pulse"></i> CEC Pulse</p>
+  </footer>
+  <script>
+    // Parse the query string to get the poll ID
+    const urlParams = new URLSearchParams(window.location.search);
+    const pollId = urlParams.get('id'); // This is a string
+  
+    const pulseQuestion = document.getElementById('pulse-question');
+    const pulseOptions = document.getElementById('pulse-options');
+    const submitButton = document.getElementById('submit-button');
+    const errorMessage = document.getElementById('error-message');
+  
+    // Fetch all polls from localStorage
+    const allPolls = JSON.parse(localStorage.getItem('polls')) || [];
+  
+    // Match the poll using String conversion
+    const currentPoll = allPolls.find(poll => String(poll.id) === pollId);
+  
+    if (currentPoll) {
+      // Populate the question and options
+      pulseQuestion.textContent = currentPoll.question;
+  
+      currentPoll.options.forEach(option => {
+        const listItem = document.createElement('li');
+        listItem.textContent = option;
+  
+        // Highlight selected option
+        listItem.addEventListener('click', () => {
+          document.querySelectorAll('#pulse-options li').forEach(li => li.classList.remove('selected'));
+          listItem.classList.add('selected');
+        });
+  
+        pulseOptions.appendChild(listItem);
+      });
+    } else {
+      // Handle case where poll is not found
+      pulseQuestion.textContent = 'Oops! There\'s no pulse found.';
+      pulseQuestion.style.color = '#ff6961';
+      submitButton.style.display = 'none'; // Hide the submit button
+    }
+  
+    // Submit button functionality
+    submitButton.addEventListener('click', () => {
+      const selectedOption = document.querySelector('#pulse-options li.selected');
+  
+      if (!selectedOption) {
+        // Show error message if no option is selected
+        errorMessage.classList.add('visible');
+        return;
+      }
+  
+      // Clear error message if option is selected
+      errorMessage.classList.remove('visible');
+  
+      // Fetch existing responses from localStorage
+      const responses = JSON.parse(localStorage.getItem('pollResponses')) || [];
+  
+      // Add the response
+      responses.push({
+        pollId: pollId, // Tie the response to the current poll ID
+        selectedOption: selectedOption.textContent
+      });
+  
+      // Save updated responses back to localStorage
+      localStorage.setItem('pollResponses', JSON.stringify(responses));
+  
+      // Redirect to results page
+      window.location.href = `pulse-rate.html?id=${pollId}`;
+    });
+  
+    // Optionally: Reset error message on selecting an option
+    pulseOptions.addEventListener('click', () => {
+      errorMessage.classList.remove('visible');
+    });
+  </script>
+  
+  
+  
+</body>
+</html>

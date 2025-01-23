@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+ 
+  <!-- Page title the same for all pages --><title>CEC Pulse</title>
+  
+  <!-- Stylesheets -->
+  <!-- Global CSS --><link rel="stylesheet" href="css/styles.css">
+  <!-- Page specific CSS --><link rel="stylesheet" href="css/xxxx.css">
+  
+  <!-- Favicons -->
+  <link rel="icon" type="assets/image/png" href="favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="assets/image/svg+xml" href="favicon.svg">
+  <link rel="shortcut icon" href="assets/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="assets/site.webmanifest">
+  
+  <!-- Google Charts -->
+  <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+
+  <style>
+    .icon-container::after {
+      content: none;
+    }
+    .icon-container {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .icon-container i {
+      font-size: 40px;
+      color: #0e0e0e !important;
+    }
+    #outer-chart-container {
+      width: 100vw;
+      position: relative;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      justify-content: center;
+      background-color: #f9f9f9;
+      padding: 20px 0;
+    }
+    #chart-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      width: 75%;
+      max-width: 1000px;
+      height: 450px;
+      border-radius: 10px;
+      padding: 20px;
+      background-color: #f9f9f9;
+      position: relative;
+    }
+    #bubble-chart {
+      width: 100%;
+      height: 100%;
+    }
+    .spinner {
+      position: absolute;
+      font-size: 50px;
+      color: #cccccc;
+      animation: spin 1.5s linear infinite;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .legend {
+      display: none;
+    }
+    #pulse-question {
+      max-width: 60%;
+      margin: 0 auto;
+    }
+    .google-visualization-tooltip {
+      border-radius: 8px !important;
+      font-family: 'Poppins', sans-serif !important;
+      font-size: 14px !important;
+    }
+    .google-visualization-tooltip div {
+      text-align: center;
+    }
+    @keyframes bounce {
+      0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-10px); }
+      60% { transform: translateY(-5px); }
+    }
+  </style>
+</head>
+
+<body>
+  <main class="main-content">
+    <div class="icon-container">
+      <i id="header-icon" class="fa-solid fa-stethoscope"></i>
+    </div>
+
+    <section id="pulse-container">
+      <h1 id="pulse-question" style="font-family: 'Poppins', sans-serif; font-size: 24px; text-align: center; margin-bottom: 20px; color: #0e0e0e;"></h1>
+
+      <div id="outer-chart-container">
+        <div id="chart-container">
+          <i class="fa-solid fa-spinner spinner"></i>
+          <!-- Column chart will be rendered here -->
+          <div id="bubble-chart" style="display: none;"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+  <!-- Global footer -->
+  <footer class="footer">
+    <p>
+      <i class="fa-solid fa-heart-pulse"></i> CEC Pulse
+    </p>
+  </footer>
+
+  <!-- Scripts -->
+  <!-- FontAwesome --><script src="https://kit.fontawesome.com/4320f229e5.js" crossorigin="anonymous"></script>
+  <!-- Specific page functionality -->
+
+  <script>
+    // Load the Google Charts library
+    google.charts.load('current', { packages: ['corechart'] });
+  
+    // Parse the query string to get the poll ID
+    const urlParams = new URLSearchParams(window.location.search);
+    const pollId = urlParams.get('id');
+  
+    // Fetch all polls and responses from localStorage
+    const allPolls = JSON.parse(localStorage.getItem('polls')) || [];
+    const allResponses = JSON.parse(localStorage.getItem('pollResponses')) || [];
+  
+    // Find the poll that matches the given ID
+    const currentPoll = allPolls.find(poll => String(poll.id) === String(pollId));
+  
+    // Draw the chart once Google Charts is loaded
+    google.charts.setOnLoadCallback(() => drawChart(currentPoll));
+  
+    function drawChart(poll) {
+      const pulseQuestion = document.getElementById('pulse-question');
+      const bubbleChart = document.getElementById('bubble-chart');
+      const spinner = document.querySelector('.spinner');
+  
+      if (poll) {
+        // Set the question text
+        pulseQuestion.textContent = poll.question;
+  
+        // Prepare the data for the chart
+        const data = new google.visualization.DataTable();
+        data.addColumn('string', 'Option');
+        data.addColumn('number', 'Votes');
+  
+        // Initialize vote counts for all options
+        const voteCounts = {};
+        poll.options.forEach(option => {
+          voteCounts[option] = 0; // Ensure all options start with 0 votes
+        });
+  
+        // Count votes for each option
+        allResponses
+          .filter(response => String(response.pollId) === String(pollId))
+          .forEach(response => {
+            if (voteCounts[response.selectedOption] !== undefined) {
+              voteCounts[response.selectedOption]++;
+            }
+          });
+  
+        // Debugging: Log vote counts for verification
+        console.log('Vote Counts:', voteCounts);
+  
+        // Add rows for all options, ensuring options with 0 votes are included
+        poll.options.forEach(option => {
+          data.addRow([option, voteCounts[option]]);
+        });
+  
+        // Chart options
+        const options = {
+          chartArea: { width: '85%', height: '85%' },
+          backgroundColor: '#f9f9f9',
+          hAxis: {
+            textStyle: { color: '#0e0e0e', fontFamily: 'Poppins', fontSize: 14, fontWeight: '600' },
+            slantedText: false,
+          },
+          vAxis: {
+            textPosition: 'none',
+            gridlines: { color: 'none' },
+            minValue: 0, // Ensure the vertical axis starts at 0
+          },
+          colors: ['#ff9aa2', '#a7c7e7', '#b6e6bd', '#f7d6c3'],
+          legend: 'none',
+          animation: {
+            startup: true,
+            duration: 1500, // Reduce animation duration
+            easing: 'linear', // Smooth out animation
+          },
+          bar: {
+            groupWidth: '70%', // Adjust bar width to prevent overlap or misalignment
+          },
+          tooltip: {
+            textStyle: { fontSize: 18, fontFamily: 'Poppins' },
+            isHtml: true,
+            showColorCode: false,
+          },
+        };
+  
+        // Simulate loading
+        setTimeout(() => {
+          spinner.style.display = 'none';
+          bubbleChart.style.display = 'block';
+          // Draw the chart
+          const chart = new google.visualization.ColumnChart(bubbleChart);
+          chart.draw(data, options);
+        }, 1000); // Adjust loading time
+      } else {
+        // Display error message if no poll data is found
+        pulseQuestion.textContent = 'Oops! There\'s no pulse found.';
+        pulseQuestion.style.color = '#ff6961';
+      }
+    }
+  </script>
+  
+  
+</body>
+</html>

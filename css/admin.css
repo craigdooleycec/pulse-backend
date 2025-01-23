@@ -1,0 +1,98 @@
+
+  /* Table Styling */
+  table {
+    width: 95%; /* Slightly narrower to prevent horizontal scrollbar */
+    max-width: 1200px; /* Set a maximum width for large screens */
+    margin: 20px auto; /* Center the table horizontally */
+    border-collapse: collapse;
+    background-color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  th, td {
+    padding: 12px 15px;
+    border: 1px solid #cccccc;
+  }
+  
+  th {
+    background-color: #f2f2f2;
+    font-weight: 600;
+    font-size: 14px;
+    color: #0e0e0e;
+    text-align: center;
+  }
+  
+  td {
+    font-size: 14px;
+    color: #333333;
+  }
+  
+  /* ID Column Width */
+  td:first-child,
+  th:first-child {
+    width: 80px; /* Narrow ID column */
+  }
+  
+  /* Row Hover State */
+  tr:hover {
+    background-color: #f9f9f9;
+  }
+  
+
+  
+  /* Trash Icon - Pastel Red */
+  .fa-trash:hover {
+    color: #ff9aa2; /* Pastel red */
+  }
+  
+  
+  
+  
+  
+  /* Popup Styling */
+  .popup {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: white;
+    padding: 20px;
+    border: 1px solid #cccccc;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    z-index: 1000;
+    text-align: center;
+  }
+  
+  .popup button {
+    margin: 10px;
+    padding: 10px 20px;
+    border: none;
+    background-color: #0e0e0e;
+    color: white;
+    font-family: 'Poppins', sans-serif;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+  
+  .popup button:hover {
+    background-color: #cccccc;
+  }
+  
+  .popup .cancel {
+    background-color: #cccccc;
+  }
+  
+  .popup .cancel:hover {
+    background-color: #e0e0e0;
+  }
+  
+  .overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 999;
+  }

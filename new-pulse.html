@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CEC Pulse</title>
+  
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="css/styles.css">
+  <link rel="stylesheet" href="css/menu.css">
+  
+  <!-- Favicons -->
+  <link rel="icon" type="assets/image/png" href="favicon-96x96.png" sizes="96x96">
+  <link rel="icon" type="assets/image/svg+xml" href="favicon.svg">
+  <link rel="shortcut icon" href="assets/favicon.ico">
+  <link rel="apple-touch-icon" sizes="180x180" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="assets/site.webmanifest">
+  
+  <!-- FontAwesome -->
+  <script src="https://kit.fontawesome.com/4320f229e5.js" crossorigin="anonymous"></script>
+  <style>
+
+    /* Keep the header icon in place */
+.icon-container {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background-color: #f9f9f9; /* Match page background */
+  padding: 20px 0;
+  text-align: center;
+}
+
+/* Style for the table to allow scrolling rows */
+table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: #ffffff;
+  margin-top: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+thead th {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  background-color: #f2f2f2; /* Match header row background */
+  font-weight: 600;
+  font-size: 14px;
+  color: #0e0e0e;
+  text-align: left;
+}
+
+tbody {
+  display: block;
+  max-height: 400px; /* Adjust to desired height */
+  overflow-y: auto;
+}
+
+tbody tr {
+  display: table;
+  width: 100%;
+  table-layout: fixed;
+}
+
+/* Remove the blue state from the chart link */
+.chart-link:link,
+.chart-link:visited,
+.chart-link:active {
+  color: #cccccc; /* Match the grey color of other icons */
+  text-decoration: none;
+}
+
+.chart-link:hover {
+  color: #999999; /* Optional hover state for consistency */
+}
+
+    
+    .btn[data-tooltip]:hover::after {
+      content: attr(data-tooltip);
+      position: absolute;
+      bottom: -50px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #ffffff;
+      color: #0e0e0e;
+      font-size: 14px;
+      font-weight: 600;
+      padding: 10px 15px;
+      border: 2px solid #cccccc;
+      border-radius: 8px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      opacity: 1;
+      visibility: visible;
+      white-space: nowrap;
+      z-index: 10;
+    }
+    .form textarea, .form input {
+      font-family: 'Poppins', sans-serif;
+      font-size: 18px;
+      padding: 15px;
+      border: 2px solid #cccccc;
+      border-radius: 5px;
+      width: 100%;
+      margin-bottom: 20px;
+      transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    }
+    .form textarea {
+      height: 100px;
+      resize: none;
+    }
+    .form input.error, .form textarea.error {
+      border-color: #ff6961;
+      box-shadow: 0 0 8px rgba(255, 105, 97, 0.5);
+    }
+    .form input.valid, .form textarea.valid {
+      border-color: #4CAF50;
+      box-shadow: 0 0 8px rgba(76, 175, 80, 0.5);
+    }
+    #save-status {
+      display: block;
+      text-align: center;
+      margin-top: 20px;
+      color: #cccccc;
+      font-family: 'Poppins', sans-serif;
+      visibility: hidden;
+      height: 20px;
+    }
+    #save-status.active {
+      visibility: visible;
+    }
+    #error-message {
+      font-family: 'Poppins', sans-serif;
+      font-size: 18px;
+      color: #ff6961;
+      text-align: center;
+      margin-top: 30px;
+      position: absolute;
+      bottom: -40px;
+      left: 0;
+      right: 0;
+      display: none;
+    }
+
+    .icon-container::after {
+      content: none;
+    }
+  </style>
+</head>
+
+<body>
+  <header class="header">
+    <div class="menu-icon-container">
+      <div class="menu-icon" id="menuToggle">
+        <i class="fa-solid fa-ellipsis"></i>
+      </div>
+    </div>
+    <div class="menu-content">
+      <ul>
+        <li><a href="index.html" class="menu-link"><i class="fa-solid fa-house fa-lg"></i></a></li>
+        <li><a href="new-pulse.html" class="menu-link"><i class="fa-solid fa-plus fa-lg"></i></a></li>
+        <li><a href="admin.html" class="menu-link"><i class="fa-solid fa-gears fa-lg"></i></a></li>
+        <li><a href="support.html" class="menu-link"><i class="fa-solid fa-circle-info fa-lg"></i></a></li>
+      </ul>
+    </div>
+    <div class="icon-container">
+      <i class="fa-solid fa-plus" style="font-size: 40px; color: #0e0e0e;"></i>
+    </div>
+  </header>
+  <main class="main-content">
+
+    
+    <form id="new-pulse-form" class="form" style="position: relative;">
+      <!-- Poll Question -->
+      <div class="form-group" style="position: relative;">
+        <textarea id="poll-question" name="pollQuestion" placeholder="Question" required></textarea>
+      </div>
+
+      <!-- Poll Options -->
+      <div id="poll-options-container">
+        <div class="form-group" style="position: relative;">
+          <input type="text" name="pollOptions[]" placeholder="Option 1" required>
+        </div>
+        <div class="form-group" style="position: relative;">
+          <input type="text" name="pollOptions[]" placeholder="Option 2" required>
+        </div>
+        <div class="form-group" style="position: relative;">
+          <input type="text" name="pollOptions[]" placeholder="Option 3" required>
+        </div>
+      </div>
+
+      <!-- Submit Button -->
+      <div class="form-group" style="display: flex; justify-content: center; align-items: center;">
+        <button type="submit" id="save-button" class="btn" data-tooltip="Save" style="display: flex; align-items: center; justify-content: center; gap: 5px; font-size: 40px; color: #cccccc; background: none; border: none; cursor: pointer; position: relative;">
+          <i class="fa-solid fa-check-circle"></i>
+        </button>
+      </div>
+      <div id="save-status">Saved</div>
+      <div id="error-message">There are errors in your pulse</div>
+    </form>
+  </main>
+
+  <!-- Global footer -->
+  <footer class="footer">
+    <p>
+      <i class="fa-solid fa-heart-pulse"></i> CEC Pulse
+    </p>
+  </footer>
+
+  <!-- Scripts -->
+  <!-- FontAwesome --><script src="https://kit.fontawesome.com/4320f229e5.js" crossorigin="anonymous"></script>
+     <!-- Include external JS -->
+  <script src="js/menu.js"></script>
+  <!-- Specific page functionality -->
+  <script>
+const saveButton = document.getElementById('save-button');
+const saveStatus = document.getElementById('save-status');
+const form = document.getElementById('new-pulse-form');
+const errorMessage = document.getElementById('error-message');
+let isPulseSaved = false; // Track if pulse is already saved
+
+saveButton.addEventListener('click', async (e) => {
+  e.preventDefault();
+
+  // Check if already saved
+  if (isPulseSaved) {
+    showStyledWarning('Pulse already saved');
+    return;
+  }
+
+  errorMessage.style.display = 'none';
+  saveStatus.classList.remove('active');
+  saveButton.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+  const question = document.getElementById('poll-question');
+  const options = Array.from(document.querySelectorAll('input[name="pollOptions[]"]'));
+
+  let hasErrors = false;
+
+  [question, ...options].forEach(input => {
+    if (!input.value.trim()) {
+      input.classList.add('error');
+      input.classList.remove('valid');
+      hasErrors = true;
+    } else {
+      input.classList.remove('error');
+      input.classList.add('valid');
+    }
+  });
+
+  if (hasErrors) {
+    errorMessage.style.display = 'block';
+    saveButton.innerHTML = '<i class="fa-solid fa-circle-exclamation" style="color: #ff6961;"></i>';
+    return;
+  }
+
+  const pollData = {
+    id: Date.now(),
+    question: question.value,
+    options: options.map(opt => opt.value),
+  };
+
+  const existingPolls = JSON.parse(localStorage.getItem('polls')) || [];
+  existingPolls.push(pollData);
+  localStorage.setItem('polls', JSON.stringify(existingPolls));
+
+  // Mark as saved
+  isPulseSaved = true;
+
+  await new Promise(resolve => setTimeout(resolve, 500));
+
+  // Generate the embed code
+  const embedCode = `<iframe src="view-pulse.html?id=${pollData.id}" width="800" height="600"></iframe>`;
+  navigator.clipboard.writeText(embedCode);
+
+  // Update the save icon and show the saved confirmation
+  saveButton.innerHTML = '<i class="fa-solid fa-check-circle" style="color: #cccccc;"></i>';
+  saveStatus.innerHTML = `
+    <div style="display: flex; flex-direction: column; align-items: center;">
+      <p style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #cccccc; margin-top: 5px;">Saved</p>
+      <div style="display: flex; align-items: center; gap: 10px; margin-top: 5px;">
+        <i class="fa-regular fa-copy" style="color: #cccccc; font-size: 20px;"></i>
+        <span style="font-family: 'Poppins', sans-serif; font-size: 14px; color: #cccccc;">Embed: copied</span>
+      </div>
+    </div>
+  `;
+  saveStatus.classList.add('active');
+});
+
+// Show styled warning for multiple saves
+function showStyledWarning(message) {
+  errorMessage.style.display = 'block';
+  errorMessage.style.color = '#ff6961';
+  errorMessage.innerHTML = `
+    <i class="fa-solid fa-circle-exclamation" style="color: #ff6961; margin-right: 10px;"></i>${message}
+  `;
+  setTimeout(() => {
+    errorMessage.style.display = 'none';
+  }, 3000); // Hide warning after 3 seconds
+}
+
+document.querySelectorAll('input, textarea').forEach(input => {
+  input.addEventListener('input', () => {
+    input.classList.remove('error');
+    input.classList.add('valid');
+    errorMessage.style.display = 'none';
+    saveButton.innerHTML = '<i class="fa-solid fa-check-circle" style="color: #cccccc;"></i>';
+  });
+  input.addEventListener('blur', () => {
+    if (!input.value.trim()) {
+      input.classList.add('error');
+      input.classList.remove('valid');
+    }
+  });
+});
+
+
+
+
+
+  </script>
+  
+</body>
+</html>
